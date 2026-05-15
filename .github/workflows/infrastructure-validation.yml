@@ -1,0 +1,56 @@
+name: CloudMart Infrastructure Validation
+
+on:
+
+  pull_request:
+
+    paths:
+      - "terraform/**"
+      - ".github/workflows/infrastructure-validation.yml"
+
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: read
+
+jobs:
+
+  terraform-quality-check:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+
+      - name: Checkout Infrastructure Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Access
+        uses: aws-actions/configure-aws-credentials@v4
+
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Formatting Validation
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Initialization
+        run: terraform init
+
+      - name: Terraform Configuration Validation
+        run: terraform validate
+
+      - name: Terraform Infrastructure Planning
+        run: terraform plan

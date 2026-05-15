@@ -1,0 +1,16 @@
+node_modules/
+npm-debug.log
+
+.terraform/
+.terraform.tfstate.lock.info
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+terraform/terraform.tfvars
+terraform/environments/*/terraform.tfvars
+terraform/backend.tf
+
+.env
+.env.*

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>CloudMart Deployment Platform</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: white;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #d1d1d1;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.1);
+      padding: 25px;
+      border-radius: 12px;
+      backdrop-filter: blur(5px);
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h2 {
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .card p {
+      color: #d8d8d8;
+      line-height: 1.5;
+    }
+
+    .user-section {
+      background: rgba(255,255,255,0.1);
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    .user-section h2 {
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #00b894;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #00a383;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      background: rgba(255,255,255,0.08);
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #bdbdbd;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="header">
+      <h1>CloudMart</h1>
+      <p>Cloud Native E-Commerce Deployment Platform</p>
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+        <h2>AWS EKS Cluster</h2>
+        <p>
+          Kubernetes-based deployment platform with scalable container orchestration.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>AWS ECS Fargate</h2>
+        <p>
+          Serverless container deployment using ECS Fargate services.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>CI/CD Pipeline</h2>
+        <p>
+          Automated deployment pipeline integrated with GitHub Actions and Terraform.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Cloud Monitoring</h2>
+        <p>
+          Infrastructure and application monitoring using Amazon CloudWatch.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="user-section">
+
+      <h2>Customer Registration</h2>
+
+      <div class="input-group">
+        <input id="name" placeholder="Enter customer name" />
+        <button onclick="addUser()">Register</button>
+      </div>
+
+      <ul id="users"></ul>
+
+    </div>
+
+    <footer>
+      CloudMart Platform | AWS ECS + EKS + Terraform + GitHub Actions
+    </footer>
+
+  </div>
+
+  <script>
+    const API = "http://localhost:3000/api";
+
+    async function loadUsers() {
+      const res = await fetch(API + "/users");
+      const users = await res.json();
+
+      const list = document.getElementById("users");
+      list.innerHTML = "";
+
+      users.forEach(user => {
+        const li = document.createElement("li");
+        li.textContent = user.name;
+        list.appendChild(li);
+      });
+    }
+
+    async function addUser() {
+      const name = document.getElementById("name").value;
+
+      if (!name) return;
+
+      await fetch(API + "/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name })
+      });
+
+      document.getElementById("name").value = "";
+
+      loadUsers();
+    }
+
+    loadUsers();
+  </script>
+
+</body>
+</html>
