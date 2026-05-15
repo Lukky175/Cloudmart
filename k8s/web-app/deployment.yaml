@@ -32,7 +32,7 @@ spec:
       containers:
         - name: cloudmart-container
 
-          image: 306649849400.dkr.ecr.ap-south-1.amazonaws.com/cloudmart-app:3071a3bad52c303c5fe62eb1ef6fa90b953a6ce4
+          image: 306649849400.dkr.ecr.ap-south-1.amazonaws.com/cloudmart-app:3e3325390a395c410bdab255cbd99f3cfe22bca0
 
           ports:
             - containerPort: 3000
