@@ -1,3 +1,9 @@
+![AWS](https://img.shields.io/badge/AWS-Cloud-orange)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-purple)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-EKS-blue)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-GitHub_Actions-black)
+
 # ☁️ CloudMart Infrastructure Platform
 
 A cloud-native deployment platform built using **AWS, Terraform, Kubernetes, ECS Fargate, GitHub Actions, and ArgoCD**.
@@ -274,3 +280,201 @@ The infrastructure supports:
 ## 🔗 GitHub Repository
 
 [Cloudmart GitHub Repository](https://github.com/Lukky175/Cloudmart.git)
+
+
+---
+
+# 📝 Assignment Answers
+
+## (a) Architecture Design
+
+The infrastructure is deployed inside a custom AWS VPC spread across multiple Availability Zones for high availability. Public subnets are used for Application Load Balancers and NAT Gateway access, while private subnets host Amazon EKS worker nodes, ECS Fargate tasks, PostgreSQL RDS, and future Redis/ElastiCache integration.
+
+The application is deployed on both Amazon ECS and Amazon EKS to demonstrate hybrid container orchestration strategies. ECS services are exposed using an Application Load Balancer, while Kubernetes workloads are deployed using Kubernetes Services and GitOps workflows through ArgoCD.
+
+For multi-region failover, the same Terraform stack can be deployed in a secondary AWS region. Route53 health checks and DNS failover policies can redirect traffic automatically if the primary region becomes unavailable.
+
+### High Availability Strategy
+
+- Multi-AZ deployment
+- ECS and Kubernetes autoscaling
+- Load balancing using ALB
+- Self-healing Kubernetes workloads
+- Health checks and rolling deployments
+
+### Security Considerations
+
+- Private subnet deployment for backend infrastructure
+- Security groups restricting inbound traffic
+- AWS Secrets Manager for sensitive credentials
+- IAM role-based access control
+- Encrypted database storage
+
+### Cost Optimization Trade-offs
+
+The project uses lightweight infrastructure for development environments, including `t3.small` worker nodes, minimal ECS task sizing, and autoscaling to avoid over-provisioning and reduce operational cost.
+
+---
+
+## (b) Terraform Strategy
+
+Terraform is structured using reusable modules for infrastructure organization and maintainability.
+
+### Core Modules
+
+- `network`
+- `eks`
+- `ecs`
+- `rds`
+- `monitoring`
+- `argocd`
+
+Each environment uses separate folders (`dev` and `prod`) to maintain isolated infrastructure configurations and variable management.
+
+### Remote State Management
+
+Terraform remote state can be configured using:
+- Amazon S3 for state storage
+- DynamoDB for state locking
+
+This prevents concurrent infrastructure modifications and state corruption.
+
+### Multi-region Provisioning
+
+Multi-region deployment can be achieved using:
+- Terraform provider aliases
+- Separate environment folders
+- Separate remote state files per region
+
+### Challenges Handled
+
+- Dependency ordering through Terraform outputs
+- State drift prevention using IaC workflows
+- Region synchronization through modular design
+- Environment isolation using separate variable configurations
+
+---
+
+## (c) Docker & Image Strategy
+
+The application uses optimized Docker containers for production deployment.
+
+### Optimization Techniques
+
+- Multi-stage Docker builds
+- Alpine Linux base images
+- Non-root container execution
+- Production dependency installation only
+
+### Image Versioning
+
+Docker images are stored in Amazon ECR and tagged using:
+- `latest`
+- Git commit SHA
+
+This improves traceability and rollback support.
+
+### Vulnerability Reduction
+
+- Minimal container packages
+- Lightweight base images
+- Non-root execution
+- Image scanning enabled in ECR
+
+### CI/CD Integration
+
+GitHub Actions automatically:
+1. Builds Docker images
+2. Pushes images to Amazon ECR
+3. Updates Kubernetes manifests
+4. Triggers ArgoCD deployment synchronization
+
+---
+
+## (d) Kubernetes Deployment
+
+The Kubernetes deployment is designed for scalability and zero downtime.
+
+### Zero-Downtime Deployment
+
+CloudMart uses rolling deployments with readiness and liveness probes to ensure zero-downtime application updates.
+
+### Autoscaling
+
+Horizontal Pod Autoscaler (HPA) is used for CPU-based autoscaling to dynamically increase or decrease pod replicas depending on workload demand.
+
+### Secret Management
+
+Sensitive data is managed using:
+- Kubernetes Secrets
+- AWS Secrets Manager integration
+
+No credentials are hardcoded inside application source code.
+
+### Inter-service Communication
+
+Services communicate internally using:
+- Kubernetes ClusterIP services
+- Internal DNS-based service discovery
+
+### GitOps Workflow
+
+ArgoCD continuously monitors the Git repository and automatically synchronizes Kubernetes manifests with the EKS cluster.
+
+---
+
+## (e) CI/CD Pipeline Design
+
+The project implements a CI/CD pipeline using GitHub Actions and ArgoCD.
+
+### Pipeline Stages
+
+1. Source code checkout
+2. Docker image build
+3. Amazon ECR authentication
+4. Docker image push
+5. Kubernetes manifest update
+6. ArgoCD synchronization
+
+### Trigger Mechanism
+
+The pipeline automatically triggers on:
+- Push events to the `main` branch
+- Manual workflow dispatch
+
+### Failure Handling & Rollback
+
+Rollback can be performed by:
+- Reverting Git commits
+- Redeploying older Docker image tags
+- Re-syncing deployments through ArgoCD
+
+---
+
+## (f) Failure & Failover Scenario
+
+If the primary AWS region becomes unavailable, Route53 DNS failover policies can redirect traffic to a secondary region.
+
+### Traffic Failover
+
+Traffic routing is handled using:
+- Route53 health checks
+- DNS-based failover policies
+
+### Data Consistency
+
+Cross-region replication strategies can be implemented using:
+- PostgreSQL read replicas
+- Amazon Aurora Global Database
+- Amazon ElastiCache Global Datastore
+
+### AWS Services Used
+
+- Route53
+- Amazon RDS
+- Amazon ECR
+- CloudWatch
+- Terraform
+- ArgoCD
+
+---
